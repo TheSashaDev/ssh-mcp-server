@@ -1,10 +1,19 @@
 {
-    "name": "ssh-mcp-server",
+    "name": "@thesashadev/ssh-mcp-server",
     "version": "1.0.0",
-    "description": "MCP Server for SSH operations — execute commands, upload/download files with multi-server support",
+    "description": "Professional SSH MCP server for AI agents. Supports sync/async commands, high-performance file transfers with 5 fallbacks.",
     "license": "AGPL-3.0",
     "type": "module",
     "main": "dist/index.js",
+    "bin": {
+        "ssh-mcp-server": "./dist/index.js"
+    },
+    "files": [
+        "dist",
+        "README.md",
+        "LICENSE",
+        "ssh-servers.example.json"
+    ],
     "scripts": {
         "build": "tsc",
         "start": "node dist/index.js",

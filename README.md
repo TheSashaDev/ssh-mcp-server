@@ -21,7 +21,15 @@ MCP server for executing commands, uploading and downloading files on remote ser
 
 ## 🚀 Quick Start
 
-1. **Clone & Build:**
+### Option A: Use via npx (Fastest)
+1. Create `ssh-servers.json` in your current folder.
+2. Run directly:
+```bash
+npx -y @thesashadev/ssh-mcp-server
+```
+
+### Option B: Local Build
+1. Clone & Build:
 ```bash
 git clone https://github.com/TheSashaDev/ssh-mcp-server.git
 cd ssh-mcp-server
@@ -29,8 +37,7 @@ npm install
 npm run build
 ```
 
-2. **Configure Servers:**
-Create `ssh-servers.json` in the project root:
+2. Create `ssh-servers.json` in the project root.
 ```json
 {
   "servers": [

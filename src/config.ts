@@ -28,7 +28,19 @@ let cachedConfig: Config | null = null;
 export function loadConfig(): Config {
     if (cachedConfig) return cachedConfig;
 
-    const configPath = resolve(__dirname, '..', 'ssh-servers.json');
+    let configPath = process.env.SSH_MCP_CONFIG;
+
+    if (!configPath) {
+        const cwdConfig = resolve(process.cwd(), 'ssh-servers.json');
+        try {
+            if (readFileSync(cwdConfig)) configPath = cwdConfig;
+        } catch { }
+    }
+
+    if (!configPath) {
+        configPath = resolve(__dirname, '..', 'ssh-servers.json');
+    }
+
     try {
         const raw = readFileSync(configPath, 'utf-8');
         const parsed = JSON.parse(raw) as Config;
