@@ -1,17 +1,16 @@
 # ssh-mcp-server
 
-MCP server for executing commands, uploading and downloading files on remote servers via SSH. Built for AI agents (Codex, Antigravity, Claude, etc).
+MCP server for executing commands, uploading and downloading files on remote servers via SSH. Optimized for AI agents (Claude Code, Cursor, Windsurf, Antigravity, etc).
 
-## Features
+## ✨ Features
 
-- **Command execution** with sync/async modes, configurable timeout, background polling
-- **File upload** with 5 automatic fallback strategies (SFTP parallel → SFTP stream → SCP → base64 → chunked)
-- **File download** with 5 automatic fallback strategies (mirror of upload)
-- **Multi-server** config with workspace-based auto-selection
-- **Clean output** — ANSI codes stripped, binary detected, control chars removed
-- **Fast** — SFTP session caching, connection pooling, AES-GCM + curve25519 preferred, 64-stream parallel transfers
+- **Command execution** — sync/async modes, timeout, background polling
+- **Reliable file transfers** — 5 automatic fallback strategies (SFTP parallel → SFTP stream → SCP → base64 → chunked)
+- **Multi-server** — easy switching with workspace-based auto-selection
+- **AI-Native output** — ANSI codes stripped, binary detected, control chars removed
+- **Extreme Performance** — Cached sessions, connection pooling, 64-stream parallel transfers
 
-## Tools
+## 🛠 Tools
 
 | Tool | Description |
 |------|-------------|
@@ -20,73 +19,64 @@ MCP server for executing commands, uploading and downloading files on remote ser
 | `ssh_upload` | Upload a local file to remote server |
 | `ssh_download` | Download a remote file to local machine |
 
-## Quick Start
+## 🚀 Quick Start
 
+1. **Clone & Build:**
 ```bash
-git clone https://github.com/yourname/ssh-mcp-server.git
+git clone https://github.com/TheSashaDev/ssh-mcp-server.git
 cd ssh-mcp-server
 npm install
 npm run build
 ```
 
+2. **Configure Servers:**
 Create `ssh-servers.json` in the project root:
-
 ```json
 {
   "servers": [
     {
       "id": "dev",
       "name": "Dev Server",
-      "host": "192.168.1.100",
-      "port": 22,
+      "host": "1.2.3.4",
       "username": "ubuntu",
       "password": "your-password",
-      "defaultRemoteDir": "/home/ubuntu",
       "workspaces": ["D:\\projects\\my-app"]
     }
   ]
 }
 ```
+*Supports password, private key (`privateKeyPath`), and SSH agent auth.*
 
-### Authentication
+## 🔌 Client Integration
 
-Both password and private key authentication are supported:
+Select your AI tool to see the setup guide:
 
+<details>
+<summary><b>🤖 Claude Code (CLI)</b></summary>
+
+Run this command in your terminal:
+```bash
+claude mcp add ssh -- node "D:/ssh mco/dist/index.js"
+```
+Or manually add to `~/.config/claude/mcp_servers.json`:
 ```json
 {
-  "servers": [
-    {
-      "id": "by-password",
-      "name": "Password Auth",
-      "host": "10.0.0.1",
-      "port": 22,
-      "username": "user",
-      "password": "secret",
-      "defaultRemoteDir": "/home/user",
-      "workspaces": []
-    },
-    {
-      "id": "by-key",
-      "name": "Key Auth",
-      "host": "10.0.0.2",
-      "port": 22,
-      "username": "deploy",
-      "privateKeyPath": "C:\\Users\\you\\.ssh\\id_rsa",
-      "passphrase": "",
-      "defaultRemoteDir": "/var/www",
-      "workspaces": []
+  "mcpServers": {
+    "ssh": {
+      "command": "node",
+      "args": ["D:/ssh mco/dist/index.js"]
     }
-  ]
+  }
 }
 ```
+</details>
 
-If neither `password` nor `privateKeyPath` is set, SSH agent (`SSH_AUTH_SOCK`) is used.
+<details>
+<summary><b>🖥️ Claude Desktop</b></summary>
 
-## Integration
-
-### Antigravity
-
-Add to `mcp_config.json`:
+Edit your `claude_desktop_config.json`:
+- **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
+- **macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
 
 ```json
 {
@@ -98,76 +88,118 @@ Add to `mcp_config.json`:
   }
 }
 ```
+</details>
 
-### Codex
+<details>
+<summary><b>🖱️ Cursor</b></summary>
 
-Add to `codex.toml` (or equivalent):
+1. Go to **Settings** > **Cursor Settings** > **Features** > **MCP**.
+2. Click **+ Add New MCP Server**.
+3. Name: `ssh`. Type: `command`. 
+4. Command:
+```bash
+node "D:/ssh mco/dist/index.js"
+```
+</details>
 
+<details>
+<summary><b>🏄 Windsurf</b></summary>
+
+Edit `~/.codeium/windsurf/mcp_config.json` (macOS/Linux) or `%USERPROFILE%\.codeium\windsurf\mcp_config.json` (Windows):
+
+```json
+{
+  "mcpServers": {
+    "ssh": {
+      "command": "node",
+      "args": ["D:/ssh mco/dist/index.js"]
+    }
+  }
+}
+```
+</details>
+
+<details>
+<summary><b>🛡️ Antigravity</b></summary>
+
+Add to `mcp_config.json`:
+```json
+{
+  "mcpServers": {
+    "ssh": {
+      "command": "node",
+      "args": ["D:/ssh mco/dist/index.js"]
+    }
+  }
+}
+```
+</details>
+
+<details>
+<summary><b>🧠 Codex</b></summary>
+
+Add to `codex.toml`:
 ```toml
 [mcp_servers."ssh"]
 command = "node"
 args = ["D:/ssh mco/dist/index.js"]
 enabled = true
-enabled_tools = [
-  "ssh_servers",
-  "ssh_execute",
-  "ssh_upload",
-  "ssh_download"
-]
 ```
+</details>
 
-## Server Config
+<details>
+<summary><b>🔍 Cody (Sourcegraph)</b></summary>
 
-Each server in `ssh-servers.json`:
+Edit `~/.config/cody/mcp_servers.json` (macOS/Linux) or `%USERPROFILE%\.config\cody\mcp_servers.json` (Windows):
+```json
+{
+  "mcpServers": {
+    "ssh": {
+      "command": "node",
+      "args": ["D:/ssh mco/dist/index.js"]
+    }
+  }
+}
+```
+</details>
+
+<details>
+<summary><b>🔁 Continue.dev</b></summary>
+
+Add to your `.continue/config.json`:
+```json
+{
+  "contextProviders": [
+    {
+      "name": "mcp",
+      "params": {
+        "mcpServers": {
+          "ssh": {
+            "command": "node",
+            "args": ["D:/ssh mco/dist/index.js"]
+          }
+        }
+      }
+    }
+  ]
+}
+```
+</details>
+
+## ⚙️ Server Config
 
 | Field | Required | Description |
 |-------|----------|-------------|
-| `id` | yes | Unique identifier used in tool calls |
-| `name` | yes | Human-readable name |
+| `id` | yes | ID used in tool calls |
 | `host` | yes | SSH host |
-| `port` | no | SSH port (default: 22) |
 | `username` | yes | SSH username |
 | `password` | no | Password auth |
-| `privateKeyPath` | no | Path to private key file |
-| `passphrase` | no | Passphrase for encrypted private keys |
-| `defaultRemoteDir` | no | Default remote working directory |
-| `workspaces` | no | Local directories associated with this server |
+| `privateKeyPath`| no | Path to private key |
+| `workspaces` | no | Local folders for auto-selection |
 
-### Workspace auto-selection
+### Workspace Auto-Selection
+When `workspaces` are set (e.g. `["D:\\projects\\my-app"]`), the AI automatically selects the correct server based on your current local directory. No manual `server_id` required!
 
-When `workspaces` are configured, the AI can pass its current local directory and the server whose workspace best matches is selected automatically. No need to specify `server_id` every time.
-
-## Tool Details
-
-### ssh_execute
-
-```
-command: "ls -la /var/www"
-server_id: "dev"
-timeout_ms: 10000
-```
-
-Async mode — start a long command, come back later:
-
-```
-command: "npm run build"
-async: true
-→ returns command_id: "a1b2c3d4e5f6"
-
-command_id: "a1b2c3d4e5f6"
-→ returns status, stdout, stderr, exit code
-```
-
-### ssh_upload / ssh_download
-
-```
-local_path: "C:\\Users\\me\\app.zip"
-remote_path: "/home/ubuntu/app.zip"
-server_id: "dev"
-```
-
-Transfer automatically tries multiple strategies. No configuration needed.
-
-## License
+## 📜 License
 
 AGPL-3.0
