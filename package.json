@@ -6,6 +6,7 @@
     "type": "module",
     "main": "dist/index.js",
     "bin": {
+        "@thesashadev/ssh-mcp-server": "./dist/index.js",
         "ssh-mcp-server": "./dist/index.js"
     },
     "files": [
