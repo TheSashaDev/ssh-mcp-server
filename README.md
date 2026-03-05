@@ -1,16 +1,20 @@
 # ssh-mcp-server
 
-MCP server for executing commands, uploading and downloading files on remote servers via SSH. Optimized for AI agents (Claude Code, Cursor, Windsurf, Antigravity, etc).
+[![npm](https://img.shields.io/npm/v/@thesashadev/ssh-mcp-server)](https://www.npmjs.com/package/@thesashadev/ssh-mcp-server)
+[![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL--3.0-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 
-## ✨ Features
+MCP server for executing commands, uploading and downloading files on remote servers via SSH. Zero-config for single servers — just pass credentials inline.
+
+## Features
 
 - **Command execution** — sync/async modes, timeout, background polling
-- **Reliable file transfers** — 5 automatic fallback strategies (SFTP parallel → SFTP stream → SCP → base64 → chunked)
+- **Reliable file transfers** — 5 automatic fallback strategies
 - **Multi-server** — easy switching with workspace-based auto-selection
-- **AI-Native output** — ANSI codes stripped, binary detected, control chars removed
-- **Extreme Performance** — Cached sessions, connection pooling, 64-stream parallel transfers
+- **AI-Native output** — ANSI stripped, binary detected, control chars removed
+- **Zero-config mode** — pass server credentials directly in MCP config, no extra files needed
+- **Fast** — SFTP session caching, connection pooling, 64-stream parallel transfers
 
-## 🛠 Tools
+## Tools
 
 | Tool | Description |
 |------|-------------|
@@ -19,25 +23,26 @@ MCP server for executing commands, uploading and downloading files on remote ser
 | `ssh_upload` | Upload a local file to remote server |
 | `ssh_download` | Download a remote file to local machine |
 
-## 🚀 Quick Start
+## Quick Start
 
-### Option A: Use via npx (Fastest)
-1. Create `ssh-servers.json` in your current folder.
-2. Run directly:
-```bash
-npx -y @thesashadev/ssh-mcp-server
+### Zero-Config (Inline)
+No files needed — pass server credentials directly in your AI tool's MCP config:
+```json
+{
+  "ssh": {
+    "command": "npx",
+    "args": [
+      "-y", "@thesashadev/ssh-mcp-server",
+      "--host", "1.2.3.4",
+      "--username", "ubuntu",
+      "--password", "your-password"
+    ]
+  }
+}
 ```
 
-### Option B: Local Build
-1. Clone & Build:
-```bash
-git clone https://github.com/TheSashaDev/ssh-mcp-server.git
-cd ssh-mcp-server
-npm install
-npm run build
-```
-
-2. Create `ssh-servers.json` in the project root.
+### With Config File
+For multi-server setups, create `ssh-servers.json` in your working directory:
 ```json
 {
   "servers": [
@@ -52,45 +57,70 @@ npm run build
   ]
 }
 ```
-*Supports password, private key (`privateKeyPath`), and SSH agent auth.*
+Then run:
+```bash
+npx -y @thesashadev/ssh-mcp-server
+```
 
 ## 🔌 Client Integration
 
-Select your AI tool to see the setup guide:
-
 <details>
-<summary><b>🤖 Claude Code (CLI)</b></summary>
+<summary><b>Claude Code (CLI)</b></summary>
 
-Run this command in your terminal:
+**Single server:**
 ```bash
-claude mcp add ssh -- node "D:/ssh mco/dist/index.js"
+claude mcp add ssh -- npx -y @thesashadev/ssh-mcp-server --host 1.2.3.4 --username ubuntu --password secret
 ```
-Or manually add to `~/.config/claude/mcp_servers.json`:
-```json
-{
-  "mcpServers": {
-    "ssh": {
-      "command": "node",
-      "args": ["D:/ssh mco/dist/index.js"]
-    }
-  }
-}
+
+**Two servers:**
+```bash
+claude mcp add ssh -- npx -y @thesashadev/ssh-mcp-server \
+  --host 1.2.3.4 --username ubuntu --password secret --id dev \
+  --host 5.6.7.8 --username deploy --key ~/.ssh/id_rsa --id prod
 ```
+
+**Or with config file:**
+```bash
+claude mcp add ssh -- npx -y @thesashadev/ssh-mcp-server
+```
+*(Place `ssh-servers.json` in your project root)*
 </details>
 
 <details>
-<summary><b>🖥️ Claude Desktop</b></summary>
+<summary><b>Claude Desktop</b></summary>
 
-Edit your `claude_desktop_config.json`:
+Edit `claude_desktop_config.json`:
 - **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
 - **macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
 
+**Single server:**
 ```json
 {
   "mcpServers": {
     "ssh": {
-      "command": "node",
-      "args": ["D:/ssh mco/dist/index.js"]
+      "command": "npx",
+      "args": [
+        "-y", "@thesashadev/ssh-mcp-server",
+        "--host", "1.2.3.4",
+        "--username", "ubuntu",
+        "--password", "secret"
+      ]
+    }
+  }
+}
+```
+
+**Two servers:**
+```json
+{
+  "mcpServers": {
+    "ssh": {
+      "command": "npx",
+      "args": [
+        "-y", "@thesashadev/ssh-mcp-server",
+        "--host", "1.2.3.4", "--username", "ubuntu", "--password", "secret", "--id", "dev",
+        "--host", "5.6.7.8", "--username", "deploy", "--key", "~/.ssh/id_rsa", "--id", "prod"
+      ]
     }
   }
 }
@@ -98,28 +128,79 @@ Edit your `claude_desktop_config.json`:
 </details>
 
 <details>
-<summary><b>🖱️ Cursor</b></summary>
+<summary><b>Cursor</b></summary>
 
-1. Go to **Settings** > **Cursor Settings** > **Features** > **MCP**.
-2. Click **+ Add New MCP Server**.
-3. Name: `ssh`. Type: `command`. 
-4. Command:
-```bash
-node "D:/ssh mco/dist/index.js"
+Open **Settings** → **Cursor Settings** → **MCP** → **+ Add New MCP Server**.
+
+Or add to `~/.cursor/mcp.json`:
+
+**Single server:**
+```json
+{
+  "mcpServers": {
+    "ssh": {
+      "command": "npx",
+      "args": [
+        "-y", "@thesashadev/ssh-mcp-server",
+        "--host", "1.2.3.4",
+        "--username", "ubuntu",
+        "--password", "secret"
+      ]
+    }
+  }
+}
+```
+
+**Two servers:**
+```json
+{
+  "mcpServers": {
+    "ssh": {
+      "command": "npx",
+      "args": [
+        "-y", "@thesashadev/ssh-mcp-server",
+        "--host", "1.2.3.4", "--username", "ubuntu", "--password", "secret", "--id", "dev",
+        "--host", "5.6.7.8", "--username", "deploy", "--key", "~/.ssh/id_rsa", "--id", "prod"
+      ]
+    }
+  }
+}
 ```
 </details>
 
 <details>
-<summary><b>🏄 Windsurf</b></summary>
+<summary><b>Windsurf</b></summary>
 
 Edit `~/.codeium/windsurf/mcp_config.json` (macOS/Linux) or `%USERPROFILE%\.codeium\windsurf\mcp_config.json` (Windows):
 
+**Single server:**
 ```json
 {
   "mcpServers": {
     "ssh": {
-      "command": "node",
-      "args": ["D:/ssh mco/dist/index.js"]
+      "command": "npx",
+      "args": [
+        "-y", "@thesashadev/ssh-mcp-server",
+        "--host", "1.2.3.4",
+        "--username", "ubuntu",
+        "--password", "secret"
+      ]
+    }
+  }
+}
+```
+
+**Two servers:**
+```json
+{
+  "mcpServers": {
+    "ssh": {
+      "command": "npx",
+      "args": [
+        "-y", "@thesashadev/ssh-mcp-server",
+        "--host", "1.2.3.4", "--username", "ubuntu", "--password", "secret", "--id", "dev",
+        "--host", "5.6.7.8", "--username", "deploy", "--key", "~/.ssh/id_rsa", "--id", "prod"
+      ]
     }
   }
 }
@@ -127,15 +208,38 @@ Edit `~/.codeium/windsurf/mcp_config.json` (macOS/Linux) or `%USERPROFILE%\.code
 </details>
 
 <details>
-<summary><b>🛡️ Antigravity</b></summary>
+<summary><b>Antigravity</b></summary>
 
 Add to `mcp_config.json`:
+
+**Single server:**
 ```json
 {
   "mcpServers": {
     "ssh": {
-      "command": "node",
-      "args": ["D:/ssh mco/dist/index.js"]
+      "command": "npx",
+      "args": [
+        "-y", "@thesashadev/ssh-mcp-server",
+        "--host", "1.2.3.4",
+        "--username", "ubuntu",
+        "--password", "secret"
+      ]
+    }
+  }
+}
+```
+
+**Two servers:**
+```json
+{
+  "mcpServers": {
+    "ssh": {
+      "command": "npx",
+      "args": [
+        "-y", "@thesashadev/ssh-mcp-server",
+        "--host", "1.2.3.4", "--username", "ubuntu", "--password", "secret", "--id", "dev",
+        "--host", "5.6.7.8", "--username", "deploy", "--key", "~/.ssh/id_rsa", "--id", "prod"
+      ]
     }
   }
 }
@@ -143,27 +247,69 @@ Add to `mcp_config.json`:
 </details>
 
 <details>
-<summary><b>🧠 Codex</b></summary>
+<summary><b>Codex</b></summary>
 
 Add to `codex.toml`:
+
+**Single server:**
 ```toml
 [mcp_servers."ssh"]
-command = "node"
-args = ["D:/ssh mco/dist/index.js"]
+command = "npx"
+args = [
+  "-y", "@thesashadev/ssh-mcp-server",
+  "--host", "1.2.3.4",
+  "--username", "ubuntu",
+  "--password", "secret"
+]
+enabled = true
+```
+
+**Two servers:**
+```toml
+[mcp_servers."ssh"]
+command = "npx"
+args = [
+  "-y", "@thesashadev/ssh-mcp-server",
+  "--host", "1.2.3.4", "--username", "ubuntu", "--password", "secret", "--id", "dev",
+  "--host", "5.6.7.8", "--username", "deploy", "--key", "~/.ssh/id_rsa", "--id", "prod"
+]
 enabled = true
 ```
 </details>
 
 <details>
-<summary><b>🔍 Cody (Sourcegraph)</b></summary>
+<summary><b>Cody (Sourcegraph)</b></summary>
 
-Edit `~/.config/cody/mcp_servers.json` (macOS/Linux) or `%USERPROFILE%\.config\cody\mcp_servers.json` (Windows):
+Edit `~/.config/cody/mcp_servers.json`:
+
+**Single server:**
 ```json
 {
   "mcpServers": {
     "ssh": {
-      "command": "node",
-      "args": ["D:/ssh mco/dist/index.js"]
+      "command": "npx",
+      "args": [
+        "-y", "@thesashadev/ssh-mcp-server",
+        "--host", "1.2.3.4",
+        "--username", "ubuntu",
+        "--password", "secret"
+      ]
+    }
+  }
+}
+```
+
+**Two servers:**
+```json
+{
+  "mcpServers": {
+    "ssh": {
+      "command": "npx",
+      "args": [
+        "-y", "@thesashadev/ssh-mcp-server",
+        "--host", "1.2.3.4", "--username", "ubuntu", "--password", "secret", "--id", "dev",
+        "--host", "5.6.7.8", "--username", "deploy", "--key", "~/.ssh/id_rsa", "--id", "prod"
+      ]
     }
   }
 }
@@ -171,42 +317,117 @@ Edit `~/.config/cody/mcp_servers.json` (macOS/Linux) or `%USERPROFILE%\.config\c
 </details>
 
 <details>
-<summary><b>🔁 Continue.dev</b></summary>
+<summary><b>Continue.dev</b></summary>
 
-Add to your `.continue/config.json`:
+Add to `.continue/config.json`:
+
+**Single server:**
 ```json
 {
-  "contextProviders": [
+  "mcpServers": [
     {
-      "name": "mcp",
-      "params": {
-        "mcpServers": {
-          "ssh": {
-            "command": "node",
-            "args": ["D:/ssh mco/dist/index.js"]
-          }
-        }
-      }
+      "name": "ssh",
+      "command": "npx",
+      "args": [
+        "-y", "@thesashadev/ssh-mcp-server",
+        "--host", "1.2.3.4",
+        "--username", "ubuntu",
+        "--password", "secret"
+      ]
+    }
+  ]
+}
+```
+
+**Two servers:**
+```json
+{
+  "mcpServers": [
+    {
+      "name": "ssh",
+      "command": "npx",
+      "args": [
+        "-y", "@thesashadev/ssh-mcp-server",
+        "--host", "1.2.3.4", "--username", "ubuntu", "--password", "secret", "--id", "dev",
+        "--host", "5.6.7.8", "--username", "deploy", "--key", "~/.ssh/id_rsa", "--id", "prod"
+      ]
     }
   ]
 }
 ```
 </details>
 
-## ⚙️ Server Config
+## Configuration
 
-| Field | Required | Description |
-|-------|----------|-------------|
-| `id` | yes | ID used in tool calls |
-| `host` | yes | SSH host |
-| `username` | yes | SSH username |
-| `password` | no | Password auth |
-| `privateKeyPath`| no | Path to private key |
-| `workspaces` | no | Local folders for auto-selection |
+Three ways to configure servers (in priority order):
 
-### Workspace Auto-Selection
-When `workspaces` are set (e.g. `["D:\\projects\\my-app"]`), the AI automatically selects the correct server based on your current local directory. No manual `server_id` required!
+### 1. CLI Arguments (Zero-Config)
+Pass directly in your MCP config args:
+```
+--host 1.2.3.4 --username ubuntu --password secret
+--host 1.2.3.4 --username deploy --key ~/.ssh/id_rsa
+```
 
-## 📜 License
+| Arg | Description |
+|-----|-------------|
+| `--host` | SSH host (starts a new server block) |
+| `--port` | SSH port (default: 22) |
+| `--username` | SSH user |
+| `--password` | Password auth |
+| `--key` | Path to private key |
+| `--passphrase` | Key passphrase |
+| `--id` | Server ID (default: "default") |
+| `--name` | Display name |
+| `--remote-dir` | Default remote directory |
+| `--workspace` | Local directory binding |
+
+Multiple servers: repeat `--host` blocks:
+```
+--host 1.2.3.4 --username dev --password pass1 --id dev
+--host 5.6.7.8 --username prod --key ~/.ssh/id_rsa --id prod
+```
+
+### 2. Environment Variables
+For single-server setups via env:
+```
+SSH_HOST=1.2.3.4 SSH_USER=ubuntu SSH_PASSWORD=secret
+```
+
+| Env Var | Description |
+|---------|-------------|
+| `SSH_HOST` | SSH host |
+| `SSH_PORT` | SSH port |
+| `SSH_USER` | Username |
+| `SSH_PASSWORD` | Password |
+| `SSH_KEY` | Private key path |
+| `SSH_PASSPHRASE` | Key passphrase |
+| `SSH_REMOTE_DIR` | Default remote dir |
+| `SSH_WORKSPACE` | Local workspace |
+
+### 3. Config File (`ssh-servers.json`)
+For complex multi-server setups. Looked up in: current directory → package directory.
+
+```json
+{
+  "servers": [
+    {
+      "id": "dev",
+      "host": "1.2.3.4",
+      "username": "ubuntu",
+      "password": "secret",
+      "workspaces": ["D:\\projects\\my-app"]
+    },
+    {
+      "id": "prod",
+      "host": "5.6.7.8",
+      "username": "deploy",
+      "privateKeyPath": "~/.ssh/id_rsa",
+      "workspaces": ["D:\\projects\\production"]
+    }
+  ]
+}
+```
+
+## License
 
 AGPL-3.0
