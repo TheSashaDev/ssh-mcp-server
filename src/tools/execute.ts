@@ -76,7 +76,7 @@ async function runSyncCommand(client: any, command: string, timeoutMs: number): 
         }, timeoutMs);
 
         let stream: any;
-        client.exec(command, (err: any, s: any) => {
+        client.exec(command, { pty: false }, (err: any, s: any) => {
             if (err) {
                 clearTimeout(timeout);
                 resolve(formatCommandResult({
@@ -92,7 +92,9 @@ async function runSyncCommand(client: any, command: string, timeoutMs: number): 
             stream = s;
 
             s.on('data', (data: Buffer) => {
-                stdout += data.toString('utf-8');
+                const chunk = data.toString('utf-8');
+                console.error(`ssh-mcp: stdout chunk (${chunk.length} chars)`);
+                stdout += chunk;
                 // Cap buffer at 5MB to prevent memory issues
                 if (stdout.length > 5 * 1024 * 1024) {
                     stdout = stdout.slice(-2 * 1024 * 1024);

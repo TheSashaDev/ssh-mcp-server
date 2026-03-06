@@ -61,12 +61,6 @@ async function createConnection(serverId: string): Promise<Client> {
         readyTimeout: CONNECTION_TIMEOUT,
         keepaliveInterval: KEEPALIVE_INTERVAL,
         keepaliveCountMax: 5,
-        algorithms: {
-            // Prefer fast ciphers
-            cipher: ['aes128-gcm@openssh.com', 'aes256-gcm@openssh.com', 'aes128-ctr', 'aes192-ctr', 'aes256-ctr'],
-            // Prefer fast key exchange
-            kex: ['curve25519-sha256', 'curve25519-sha256@libssh.org', 'ecdh-sha2-nistp256', 'ecdh-sha2-nistp384', 'diffie-hellman-group14-sha256'],
-        },
     };
 
     if (serverConfig.privateKeyPath) {
@@ -90,6 +84,7 @@ async function createConnection(serverId: string): Promise<Client> {
 
         client.on('ready', () => {
             clearTimeout(timeout);
+            console.error(`ssh-mcp: connected to ${serverId} (${serverConfig.host}:${serverConfig.port})`);
             pool.set(serverId, { client, config: serverConfig, lastUsed: Date.now(), connected: true, sftp: null, sftpPending: null });
             resolve(client);
         });
