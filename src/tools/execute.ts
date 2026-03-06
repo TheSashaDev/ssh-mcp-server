@@ -76,7 +76,7 @@ async function runSyncCommand(client: any, command: string, timeoutMs: number): 
         }, timeoutMs);
 
         let stream: any;
-        client.exec(command, { pty: false }, (err: any, s: any) => {
+        client.exec(command, { pty: true }, (err: any, s: any) => {
             if (err) {
                 clearTimeout(timeout);
                 resolve(formatCommandResult({
@@ -157,7 +157,7 @@ async function startAsyncCommand(
 
     const client = await getConnection(serverId);
 
-    client.exec(fullCommand, (err: any, stream: any) => {
+    client.exec(fullCommand, { pty: true }, (err: any, stream: any) => {
         if (err) {
             asyncCmd.status = 'error';
             asyncCmd.error = err.message;
